@@ -15,6 +15,6 @@ public class Turntable : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        this.transform.Rotate(0, rotationSpeed * Time.deltaTime, 0);
+        transform.RotateAround(Vector3.zero, Vector3.up, rotationSpeed * Time.deltaTime);
     }
 }
