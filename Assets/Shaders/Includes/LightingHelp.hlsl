@@ -30,7 +30,7 @@ void ComputeAdditionalLighting_float(float3 WorldPosition, float3 WorldNormal,
 
 #ifndef SHADERGRAPH_PREVIEW
 
-    int pixelLightCount = GetAdditionalLightsCount();
+    int pixelLightCount = GetAdditionalLightsCount(); //find all additional lights, anything that isn't the floating sunlight
     
     for (int i = 0; i < pixelLightCount; ++i)
     {
@@ -92,5 +92,17 @@ void ChooseColor_float(float3 Highlight, float3 Midtone, float3 Shadow, float Di
     else
     {
         OUT = Highlight;
+    }
+}
+
+void ChooseColorSimple_float(float3 Color1, float3 Color2, float Diffuse, float Thresholds, out float3 OUT)
+{
+    if (Diffuse < Thresholds)
+    {
+        OUT = Color1;
+    }
+    else
+    {
+        OUT = Color2;
     }
 }

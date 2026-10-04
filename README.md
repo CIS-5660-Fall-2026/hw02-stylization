@@ -3,9 +3,34 @@
 ## Project Overview:
 In this assignment, you will use a 2D concept art piece as inspiration to create a 3D Stylized scene in Unity. This will give you the opportunity to explore stylized graphics techniques alongside non-photo-realistic (NPR) real-time rendering workflows in Unity.
 
-| <img width="500px" src=https://github.com/CIS-566-Fall-2023/hw04-stylization/assets/72320867/755780f1-8b8c-47e1-b14f-3a619f92fd3a/>  | <img width="500px" src=https://github.com/CIS-566-Fall-2023/hw04-stylization/assets/72320867/70550c09-ba75-4d10-9b30-60874179ad10/> |
+## Luke Kwon
+| <img width="480" height="270" alt="VG-RP-Stuck-In-2D-Kirby-RebeccaB-N_480x270" src="https://github.com/user-attachments/assets/c9231c17-118e-4e92-913f-a251aa5b4c6f" /> | <img width="500px" src="https://github.com/lukekwon98/hw02-stylization/blob/main/Korbers.png?raw=true" /> |
 |:--:|:--:|
 | *2D Concept Illustration* | *3D Stylized Scene in Unity* |
+
+<img width="1080px" src="https://github.com/lukekwon98/hw02-stylization/blob/main/Korbers.gif?raw=true" />
+
+### 1. Concept Art Reference
+* **Concept Art/Source:** Watchmojo, https://www.watchmojo.com/articles/stuck-in-2d-kirby
+* **Models/Source:** Kirby: Dante Rossi - Zion , https://sketchfab.com/3d-models/kirby-fofinho-79bab9e6d16c43aebf04a70abd0c7dfd / Star: gaelinix, https://sketchfab.com/3d-models/super-mario-star-cd988ff787734dec955cd76e8acdf327 
+
+### 2. Surface Shaders
+* **Improved Surface Shader (Kirby):** Stepped toon shader featuring custom halftone pattern shadows mapped to a stylized purple tint via a Lerp node. Also added rim highlights and multiple light support.
+* **Special Surface Shader (Star):** Object UVs combined with Time and Fraction to read a custom Sample Gradient. Time is passed through a Floor node to create a stepped, stop-motion framerate.
+
+### 3. Outlines
+* **Edges (Depth and Normals):** Static lines using undistorted screen UVs.
+* **Animated Edge (Normals):** Animated outer silhouettes. A Gradient Noise node offsets screen UVs, stepped with a Floor node and clamped via Remap to outline geometry without detaching.
+
+### 4. Full Screen Post-Process
+* **Vignette:** Built by taking the Distance between the Screen Position and the screen's center. This gradient is passed through a Smoothstep node to control the falloff, and used as the T value in a Lerp node to blend a dark tint over the scene's base color.
+
+### 5. Scene Composition & Camera
+* **Layout:** Four Kirby models of different colors surrounding a central hero Star.
+
+### 6. Interactivity
+* **Mechanic:** Pressing Spacebar makes the 4 Kirby's colors rotate around.
+
 ### HW Task List:
 1. Picking a Piece of Concept Art
 2. Interesting Shaders
