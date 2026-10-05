@@ -24,6 +24,8 @@ public class FullScreenFeature : ScriptableRendererFeature
         {
             this.settings = passSettings;
             this.renderPassEvent = settings.renderPassEvent;
+            // OutlineShader samples scene depth in addition to the normal buffer.
+            ConfigureInput(ScriptableRenderPassInput.Depth);
             if (settings.material == null) settings.material = CoreUtils.CreateEngineMaterial("Shader Graphs/Invert");
         }
 
@@ -45,16 +47,38 @@ public class FullScreenFeature : ScriptableRendererFeature
         // Use <c>ScriptableRenderContext</c> to issue drawing commands or execute command buffers
         // https://docs.unity3d.com/ScriptReference/Rendering.ScriptableRenderContext.html
         // You don't have to call ScriptableRenderContext.submit, the render pipeline will call it at specific points in the pipeline.
+        // public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+        // {
+        //     CommandBuffer cmd = CommandBufferPool.Get();
+        //     using (new ProfilingScope(cmd, new ProfilingSampler(ProfilerTag)))
+        //     {
+        //         // HW 4 Hint: Blit from the color buffer to a temporary buffer and *back*.
+        //         Blit(cmd, colorBuffer, temporaryBuffer, settings.material);
+
+        //         Blit(cmd, temporaryBuffer, colorBuffer);
+        //     }
+
+        //     // Execute the command buffer and release it.
+        //     context.ExecuteCommandBuffer(cmd);
+        //     CommandBufferPool.Release(cmd);
+        // }
+
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             CommandBuffer cmd = CommandBufferPool.Get();
+
             using (new ProfilingScope(cmd, new ProfilingSampler(ProfilerTag)))
             {
-                // HW 4 Hint: Blit from the color buffer to a temporary buffer and *back*.
-                Blit(cmd, colorBuffer, temporaryBuffer, settings.material);
+                // Copy the original camera image first
+                Blit(cmd, colorBuffer, temporaryBuffer);
+
+                // Explicitly expose that copied image to OutlineShader as _MainTex
+                cmd.SetGlobalTexture("_MainTex", temporaryBuffer);
+
+                // Apply OutlineMaterial while writing back to the camera
+                Blit(cmd, temporaryBuffer, colorBuffer, settings.material);
             }
 
-            // Execute the command buffer and release it.
             context.ExecuteCommandBuffer(cmd);
             CommandBufferPool.Release(cmd);
         }
@@ -84,5 +108,4 @@ public class FullScreenFeature : ScriptableRendererFeature
         renderer.EnqueuePass(m_FullScreenPass);
     }
 }
-
 
