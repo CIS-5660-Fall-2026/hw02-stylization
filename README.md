@@ -1,3 +1,97 @@
+## Zhiyao Luo's Results
+
+**Name:** Zhiyao Luo  
+**PennKey:** leoluozy  
+
+### Concept Art
+![](Result/C1.png)
+*Concept Art1*
+
+<p align="center">
+  <img src="Result/C2.png" width="200"><br>
+  <em>Concept Art2</em>
+</p>
+
+### Final Result
+GIF previews are shown below. Full videos are available in the
+[Result folder](Result/).
+
+![](Result/result1.gif)
+*Turnaround*
+
+![](Result/result2.gif)
+*Multiple lights*
+
+![](Result/result3.gif)
+*Dissolve*
+
+![](Result/result4.png)
+*Vignette*
+
+![](Result/result5.png)
+*Rim*
+
+
+### Features
+
+- **Multiple lights:** The toon shader supports directional and point lights.
+- **Rim highlight:** An adjustable rim light highlights the character's edges.
+- **Custom shadows:** A seamless wave and bubble texture adds patterns to shadows. It uses object UV0 with adjustable scale and strength.
+- **Special shader:** A second shader creates a water dissolve effect with moving noise, a changing dissolve threshold, and blue edges.
+- **Full Screen Feature fix:** Added a second Blit to copy the
+  processed image from the temporary buffer back to the camera.
+- **Outlines:** Roberts Cross detects edges from separate depth and normal buffers. Outline width is adjustable.
+- **Animated outlines:** Time-based offsets make the outlines wobble.
+- **Fullscreen effect:** A vignette darkens the edges of the image.
+- **Scene:** The scene includes a character, ground, background,
+  test sphere, and multiple lights.
+- **Interaction:** Press Space to switch between normal and dissolve material sets.
+
+Fullscreen outlines are disabled during dissolve mode and restored when switching back to normal mode.
+
+### Shadow Texture
+
+<img src="Assets/texture/water4.png" width="250">  
+
+I created a tileable wave with bubble shadow texture.
+It uses object UV0, with adjustable Shadow Scale and Shadow Strength.
+
+### Extra Credit Attempt
+
+- I utilized ILM masks and a ramp texture to control shading and colors across different material regions.
+
+
+<img src="Assets/texture/Hair/Shadow/Ramp/Avatar_Girl_Sword_Furina_Tex_Hair_Shadow_Ramp.png" width="250"> <em>Ramp</em>
+<img src="Assets/texture/Body/Lightmap/Avatar_Girl_Sword_Furina_Tex_Body_Lightmap.png" width="250"> 
+<em>ILM</em>
+
+### How to Run
+
+Open `Assets/Scenes/HW Base.unity` in Unity 2022.3.9f1.
+Set Game resolution to 1920 × 1080, press Play, and press Space
+to switch between normal and dissolve materials.
+
+### Credit
+- **Concept art — Furina Card:** Artwork by miHoYo / HoYoverse.
+  Image sourced from [Genshin Impact Wiki](https://genshin-impact.fandom.com/wiki/Furina?file=Furina+Card.png).
+- **Character model:** Provided by miHoYo, modified by 观海
+  (Bilibili: 观海子).
+  [Model source](https://www.aplaybox.com/details/model/iBOW5aAVDaoH)
+- **Character textures:** Original textures from Genshin Impact
+  (miHoYo / HoYoverse), sourced from
+  [Escartem/GenshinTextures](https://github.com/Escartem/GenshinTextures).
+
+
+---
+
+
+
+
+
+
+
+
+
 # HW 2: *3D Stylization*
 
 ## Project Overview:
