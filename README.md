@@ -1,5 +1,77 @@
 # HW 2: *3D Stylization*
 
+![Concept art: chibi Leon and Grace by @miftasee](Images/re9.jpeg)
+
+*Concept art by [@miftasee](https://x.com/miftasee/status/2029589063402209576).*
+
+## Turnaround
+
+[![Turnaround of the Concept Scene](Images/turntable.webp)](Images/turntable.mp4)
+
+The Concept Scene in Play mode: the turntable camera circles Leon and Grace once every 18 seconds. The preview above loops; click it for the full-resolution video ([turntable.mp4](Images/turntable.mp4)).
+
+## Credits
+
+- **Concept art:** chibi fan art by [@miftasee](https://x.com/miftasee/status/2029589063402209576) (local copy: [Images/re9.jpeg](Images/re9.jpeg)).
+- **Leon and Grace models** (Concept Scene): generated with [Tripo](https://www.tripo3d.ai) image-to-3D from cut-outs of the concept art ([Images/leon_ref.png](Images/leon_ref.png), [Images/grace_ref.png](Images/grace_ref.png)), then rescaled, posed, and re-shaded with this project's toon shaders.
+
+## Interesting Shadow: Watercolor Wash
+
+![Leon and Grace with watercolor-wash shadows](Images/watercolor_shadows.jpg)
+
+The concept art shades with translucent watercolor washes, not lines: a cool mauve glaze over the faces with soft, hand-painted edges, and blue-grey shadows on the ground that are darkest at the feet and fade out gradually, with no outline. The shadows of the toon shader work the same way.
+
+- **Custom texture:** [Watercolor Wash.png](Assets/Textures/Watercolor%20Wash.png) is a seamless grayscale wash swatch with soft pigment blotches, darker dried edges and paper grain. It was generated from periodic noise, so it tiles without seams. The shader samples it with the mesh UVs × **Shadow Scale** and uses it as pigment density (**Wash Strength**): thin spots let the lit color show through, dense spots go darker.
+- **Wash edge:** where a surface turns away from the light, the boundary between light and shadow is broken up with noise (**Edge Breakup**, **Breakup Scale**) so it looks hand-painted. The noise uses world position rather than UVs, so the edge stays continuous across UV seams. **Band Softness** sets how soft the edge is.
+- **Pigment pooling:** a slightly darker rim just inside that edge, the way a watercolor wash dries (**Edge Darkening**).
+- **Cast shadows that fade out:** a shadow is crisp and dense where it touches its caster, then spreads, softens and thins out as it runs away from it, like the shadows under the characters' feet in the art.
+  - The shader first searches the main light's shadow map around each point to find how far away (along the light) the caster is.
+  - The shadow is then averaged over a disc on the receiving surface whose radius grows with that distance (**Soft Shadow Radius** at contact, plus **Penumbra Growth** per meter), the way contact-hardening soft shadows work.
+  - Its opacity falls off with the same distance and reaches zero at **Shadow Fade Distance**.
+  - The disc is nudged by noise (**Shadow Edge Jitter**), so the shadow's edge comes out irregular.
+  - Cast shadows are laid on as a glaze with continuous opacity, outside the toon bands, so they never snap to a hard edge and get no pigment rim.
+
+![The Watercolor Wash shadow texture](Assets/Textures/Watercolor%20Wash.png)
+
+The code is in [LightingHelp.hlsl](Assets/Shaders/Includes/LightingHelp.hlsl) (`WatercolorShadow` and `ChooseColor`), used by both the Toon Shader and Toon Tremble Shader graphs.
+
+## Post Process: Survival Horror Finish
+
+![The scene without (left) and with (right) the Survival Horror Finish](Images/horror_post.jpg)
+
+A full-screen pass gives the scene a Resident Evil mood while staying in the concept art's watercolor style. It runs after the outline pass, so the lines are graded too.
+
+- **Closing-in vignette:** the art's backdrop darkens toward the top-right, so the frame is closed in by an off-center slate vignette. Its edge bleeds in like a watercolor wash (the same Watercolor Wash texture, drifting slowly across the screen) instead of a smooth digital gradient.
+- **Failing flashlight:** the vignette slowly breathes and now and then flickers inward, like an unsteady light.
+- **Color grade:** slightly desaturated, with cool slate lifted into the darks and a warm tint toward the highlights, the same cold/warm contrast the concept art uses.
+- **Film grain:** fine monochrome grain, strongest in the darks, re-rolled every frame.
+
+Every part is adjustable on [Horror Post.mat](Assets/Materials/Full%20Screen/Horror%20Post.mat): vignette color, center, radius, softness and strength, bleed amount and scale, flicker, shadow and highlight tints, desaturation, and grain. The shader is [Horror Post.shadergraph](Assets/Shaders/Horror%20Post.shadergraph), with the code in [PostProcessHelp.hlsl](Assets/Shaders/Includes/PostProcessHelp.hlsl). It runs through a second Full Screen Feature on the URP renderer, set to Before Rendering Post Processing.
+
+## Interactivity: Danger Mode
+
+![Calm (left) and Danger mode (right)](Images/danger_mode.jpg)
+
+In Play mode, press **Space** in the Concept Scene to toggle "DANGER" mode, named after the red status on Resident Evil's health screen. Press it again to return.
+
+- **New post-process effect:** [Danger Post](Assets/Shaders/Danger%20Post.shadergraph) replaces the Survival Horror Finish. A heartbeat (a "lub-dub" at 96 bpm) drives it: on every beat a blood-red watercolor vignette tightens around the characters, chromatic aberration spikes, and the frame flashes faintly red. Everything that isn't already red drains to a cold grey.
+- **Swapped surface materials:** Leon and Grace switch to danger versions lit as if by red emergency light, with deep maroon shadows and a strong red rim light. Grace's tremble gets faster and stronger as she panics.
+- **Scripts:** [DangerMode.cs](Assets/Scripts/DangerMode.cs) (on the *Danger Mode* object) listens for the key. It switches every [MaterialSwapper](Assets/Scripts/MaterialSwapper.cs) to its danger material and swaps which full-screen feature is active. It puts the renderer features back when Play mode ends, since they're project assets.
+
+## Extra Credit: Police Station Hall
+
+![Leon and Grace in the police station hall](Images/police_hall.jpg)
+
+Leon and Grace now stand in a dim police station lobby, modeled on the main hall of the Raccoon Police Department in *Resident Evil 2* (2019). Only the layout is borrowed; all geometry and textures are my own. All of it uses this project's toon shader, so it gets the same watercolor shadows and sketch outlines as the characters.
+
+- **Turntable camera:** the camera is framed tight on the characters to show off their shaders. In Play mode, its pivot ([Turntable.cs](Assets/Scripts/Turntable.cs) on *Camera Pivot*) circles them at 20° per second, one full turn every 18 seconds. The hall is enclosed on all four sides, so every angle of the turnaround has a background.
+- **Set:** a white marble floor, and behind the characters the stone back wall under the upper balcony, two stone columns holding the balcony up, and the reception desk with a gold crest and two monitors, flanked by brass stanchions with red velvet ropes. Opposite the desk are tall paneled entrance doors in a stone surround, and each side wall has a paneled office door between stone pilasters.
+- **Surfaces:** two seamless textures generated from periodic noise. [Marble Floor.png](Assets/Textures/Hall/Marble%20Floor.png) is a 1.2 m tile of four veined white marble slabs with small dark octagon insets at the corners. [Stone Wall.png](Assets/Textures/Hall/Stone%20Wall.png) is grey-green ashlar in 30 cm courses with mortar joints and mottling. The floor and walls are meshes with UVs in meters, so both textures tile at real-world scale.
+- **Plain floor on purpose:** the floor has no large emblem or busy pattern, so the characters' watercolor cast shadows read clearly against it.
+- **Dim lighting:** the key light is down to 0.6 intensity, and the balcony above the frame shades the back wall. The wall's material has a longer **Shadow Fade Distance**, so that shadow stays even though the balcony is a few meters away. The characters stand out, lit, against dark stone.
+
+The hall is the *Hall* object in the Concept Scene. Its meshes are in `Assets/Models/Hall`, its materials in `Assets/Materials/Toon/Hall`, and its textures in `Assets/Textures/Hall`.
+
 ## Project Overview:
 In this assignment, you will use a 2D concept art piece as inspiration to create a 3D Stylized scene in Unity. This will give you the opportunity to explore stylized graphics techniques alongside non-photo-realistic (NPR) real-time rendering workflows in Unity.
 
