@@ -94,3 +94,68 @@ void ChooseColor_float(float3 Highlight, float3 Midtone, float3 Shadow, float Di
         OUT = Highlight;
     }
 }
+
+void ChooseColorWMidtone_float(float3 Highlight, float3 Shadow, float Diffuse, float HighlightThreshold, float3 Midtone, float MidtoneThreshold, out float3 OUT)
+{
+    if (Diffuse > HighlightThreshold)
+    {
+        OUT = Highlight;
+    }
+    else if (Diffuse > MidtoneThreshold)
+    {
+        OUT = Midtone;
+    }
+    else
+    {
+        OUT = Shadow;
+    }
+}
+
+
+void RimHighlight_float(float3 WorldNormal, float3 ViewDir, float Diffuse, float RimThreshold, out float Rim)
+{
+    float3 N = normalize(WorldNormal);
+    float3 V = normalize(ViewDir);
+
+    float fresnel = 1 - saturate(dot(N, V));
+
+    fresnel = step(RimThreshold, fresnel);
+
+    Rim = fresnel * step(0.01, Diffuse);
+}
+
+void ToonSpecular_float(float3 WorldNormal, float3 ViewDir, float3 LightDir, float Diffuse, float SpecSize, out float Spec)
+{
+    float3 N = normalize(WorldNormal);
+    float3 V = normalize(ViewDir);
+    float3 L = normalize(LightDir);
+
+    float3 H = normalize(L + V);
+    float NdotH = saturate(dot(N, H));
+
+    Spec = step(1 - SpecSize, NdotH) * step(0.01, Diffuse);
+}
+
+// Hand drawn style glint: a crescent that runs parallel to the silhouette, a bit inside it,
+// on the side facing GlintDir.
+// GlintOffset: where the crescent sits, 1 = on the silhouette, smaller = further inside
+// GlintWidth:  how thick it is
+// GlintLength: how far it reaches around the side, 0..1
+void EdgeGlint_float(float3 WorldNormal, float3 ViewDir, float3 GlintDir,
+    float GlintOffset, float GlintWidth, float GlintLength, out float Glint)
+{
+    float3 N = normalize(WorldNormal);
+    float3 V = normalize(ViewDir);
+    float3 G = normalize(GlintDir);
+
+    float edge = 1 - saturate(dot(N, V));   // 1 at the silhouette, 0 facing the camera
+    float facing = saturate(dot(N, G));     // 1 where the surface faces GlintDir
+
+    // 1 in the middle of the band, falling to 0 at its borders
+    float band = saturate(1 - abs(edge - GlintOffset) / GlintWidth);
+    // 1 where the surface fully faces GlintDir, 0 at the ends of the crescent
+    float reach = saturate((facing - (1 - GlintLength)) / GlintLength);
+
+    // Multiplying the two makes the band thin out towards its ends
+    Glint = step(0.5, band * reach);
+}

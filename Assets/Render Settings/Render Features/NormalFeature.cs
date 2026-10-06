@@ -62,7 +62,10 @@ class NormalsPass : ScriptableRenderPass
             return;
         SortingCriteria sortingCriteria = renderingData.cameraData.defaultOpaqueSortFlags;
         DrawingSettings drawingSettings = CreateDrawingSettings(m_ShaderTagIdList, ref renderingData, sortingCriteria);
-        drawingSettings.overrideMaterial = normalsMaterial;
+        // Override only the shader so each object keeps its own material properties.
+        // The normal copy shader reads the balloon float parameters from them to match the vertex animation.
+        drawingSettings.overrideShader = normalsMaterial.shader;
+        drawingSettings.overrideShaderPassIndex = 0;
 
         CommandBuffer cmd = CommandBufferPool.Get();
         using (new ProfilingScope(cmd, m_ProfilingSampler))
