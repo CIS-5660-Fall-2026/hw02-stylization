@@ -60,7 +60,6 @@ void ComputeAdditionalLighting_float(float3 WorldPosition, float3 WorldNormal,
             rampedDiffuse = RampedDiffuseValues.z;
         }
 
-        
         if (light.distanceAttenuation <= 0)
         {
             rampedDiffuse = 0.0;

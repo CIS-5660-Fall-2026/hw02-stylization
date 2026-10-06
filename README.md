@@ -1,5 +1,27 @@
 # HW 2: *3D Stylization*
 
+## Nathan Chortek | Submission Details
+
+| <img src=Images/umbreon.jpeg width="500px"/> |
+|:--:|
+| *2D Concept Illustration* |
+| Credit: milkshreds on Instagram |
+
+| <video src=https://github.com/user-attachments/assets/c90c33d3-c431-4d29-b1a2-d3e9cac5b13a/> |
+|:--:|
+| <video src=https://github.com/user-attachments/assets/4d3fc225-aa75-4751-aadc-4aead2207be4/> |
+| *3D Stylized Scene in Unity* |
+| Model Credits: [Umbreon](https://sketchfab.com/3d-models/umbreon-pokemon-c705a625f57443d5ad3fbcc6f768e24b) [Espeon](https://sketchfab.com/3d-models/espeon-42d14d33af274a6c9caad5156dae60dd) |
+
+### Features Implemented
+- **Toon shader:** Surfaces are shaded in three flat tones (shadow, midtone, highlight) with a rim highlight, and shadows utilize a cross-hatch texture instead of a flat color.
+- **Accent shader:** A variant of the toon shader whose colors pulse between teal and yellow in a stepped pattern. The two palettes are interpolated using sinusoidal time combined with floor and smoothstep nodes.
+- **Edge detection:** Black outlines are drawn around objects and along sharp creases as a full-screen pass. A Roberts cross filter over the depth and normal buffers finds the edges.
+- **Outline animation:** The outlines wobble and pulse over time while the image underneath stays still. The edge-detection UVs are warped using a time-animated Voronoi node.
+- **Hand-drawn effect:** A pencil-shading texture is blended over the scene color in screen space.
+- **Effect swap:** Pressing Space switches the post-process effect between the hand-drawn look and a mosaic. A C# script cycles the material used by the post-process renderer feature.
+- **Mosaic effect:** The scene is rendered with flat-colored tiles separated by black grout, with some tiles missing for an aged look. Each fragment takes the scene color at its nearest Voronoi cell point, using custom 2D Worley noise.
+
 ## Project Overview:
 In this assignment, you will use a 2D concept art piece as inspiration to create a 3D Stylized scene in Unity. This will give you the opportunity to explore stylized graphics techniques alongside non-photo-realistic (NPR) real-time rendering workflows in Unity.
 
