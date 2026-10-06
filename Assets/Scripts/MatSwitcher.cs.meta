@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 792eaf1375b2d1b47af1bdf04e1e13ad
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - waterPlane: {fileID: 919132149155446097, guid: c391089be08ceec47a87084b7f74e63a,
+      type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

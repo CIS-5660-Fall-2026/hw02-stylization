@@ -52,6 +52,9 @@ public class FullScreenFeature : ScriptableRendererFeature
             {
                 // HW 4 Hint: Blit from the color buffer to a temporary buffer and *back*.
                 Blit(cmd, colorBuffer, temporaryBuffer, settings.material);
+
+                // put the processed image (currently in temp buff) back where the camera actually renders from
+                Blit(cmd, temporaryBuffer, colorBuffer);
             }
 
             // Execute the command buffer and release it.
@@ -82,6 +85,13 @@ public class FullScreenFeature : ScriptableRendererFeature
         if (renderingData.cameraData.cameraType != CameraType.Game)
             return;
         renderer.EnqueuePass(m_FullScreenPass);
+    }
+
+
+    public void SetMaterial(Material newMaterial)
+    {
+        settings.material = newMaterial;
+        m_FullScreenPass.settings.material = newMaterial;
     }
 }
 

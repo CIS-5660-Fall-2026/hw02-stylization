@@ -1,4 +1,4 @@
-Shader "Hidden/Normal Copy"
+Shader "Normal Copy"
 {
     SubShader
     {
