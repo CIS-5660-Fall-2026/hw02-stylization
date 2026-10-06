@@ -1,3 +1,13 @@
+hello, i did my assignment through the lab repo
+
+https://github.com/Bean-Github/Stylization-Lab---CIS-5660-Kevin
+
+thanks, sorry I dont know how to move the stuff over on github
+
+
+
+
+
 # HW 2: *3D Stylization*
 
 ## Project Overview:
