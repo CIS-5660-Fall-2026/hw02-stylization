@@ -1,5 +1,21 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-2424034429304584419
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8faec35144280c146ac2395f7d7187de, type: 3}
+  m_Name: FullScreenFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  settings:
+    renderPassEvent: 550
+    material: {fileID: 2100000, guid: d3ea5c7357073c442b3be121c114bf0d, type: 2}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16,8 +32,11 @@ MonoBehaviour:
     debugReplacementPS: {fileID: 4800000, guid: cf852408f2e174538bcd9b7fda1c5ae7,
       type: 3}
     hdrDebugViewPS: {fileID: 4800000, guid: 573620ae32aec764abd4d728906d2587, type: 3}
-  m_RendererFeatures: []
-  m_RendererFeatureMap: 
+  m_RendererFeatures:
+  - {fileID: 3358549094919746374}
+  - {fileID: -2424034429304584419}
+  - {fileID: 817895218403496874}
+  m_RendererFeatureMap: 46b366839bf69b2e1dc7fb9587195cdeaa536e245ebf590b
   m_UseNativeRenderPass: 0
   postProcessData: {fileID: 0}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}
@@ -60,6 +79,41 @@ MonoBehaviour:
   m_CopyDepthMode: 0
   m_AccurateGbufferNormals: 0
   m_IntermediateTextureMode: 1
+--- !u!114 &817895218403496874
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8faec35144280c146ac2395f7d7187de, type: 3}
+  m_Name: FullScreenFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  settings:
+    renderPassEvent: 1000
+    material: {fileID: 2100000, guid: fdaf4ca589f22b545a496fb86ca63dbb, type: 2}
+--- !u!114 &3358549094919746374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 552c866e32d5f734daec12e70f016d2c, type: 3}
+  m_Name: NormalFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  normalsLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  NormalsTexture: {fileID: 8400000, guid: a348fe2d588e6ba48b8e31d4143cb7ba, type: 2}
+  _NormalsEvent: 300
+  normalsMaterial: {fileID: 2100000, guid: 9cfa343cad279914e84371098d7f2f4f, type: 2}
 --- !u!114 &5953239638328874002
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -73,3 +127,25 @@ MonoBehaviour:
   m_Name: Dummy
   m_EditorClassIdentifier: 
   m_Active: 1
+--- !u!114 &6111796060664558799
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee5d9bc295fabbf42acd97cdba3461f4, type: 3}
+  m_Name: EdgeDetection
+  m_EditorClassIdentifier: 
+  m_Active: 0
+  settings:
+    renderPassEvent: 500
+    outlineThickness: 1
+    outlineColor:
+      r: 0
+      g: 0
+      b: 0
+      a: 1
+  edgeDetectionMaterial: {fileID: 0}
