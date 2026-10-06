@@ -1,3 +1,22 @@
+# Bryan Chung - HW 2: Stylization
+
+| Final | Reference |
+|:---:|:---:|
+| <img src="final.png" width="400"> | <img src="ref.jpg" width="400"> |
+
+Features:
+- Additional rim light step in toon shader (fresnel)
+- Animated shader (hue shift for rainbow effect)
+- Roberts cross edge detection for outlines
+- Post-process film grain/noise effect
+- Party mode, toggle by pressing space
+
+https://github.com/user-attachments/assets/23324e9b-45c0-4730-b78f-eb6b6b423a67
+
+https://github.com/user-attachments/assets/7377cc1a-d3a0-453a-a4d6-bd2443ba8e80
+
+---
+
 # HW 2: *3D Stylization*
 
 ## Project Overview:

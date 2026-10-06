@@ -4,17 +4,25 @@ using UnityEngine;
 
 public class Turntable : MonoBehaviour
 {
+    [SerializeField] private MeshRenderer[] meshes;
 
-    public float rotationSpeed = 1.0f;
-    // Start is called before the first frame update
-    void Start()
+    private bool altMode;
+    
+    private void Update()
     {
-        
-    }
+        float y = 180f + 20f * Mathf.Sin(Time.time * 0.1f * 2f * Mathf.PI);
+        transform.localRotation = Quaternion.Euler(0f, y, 0f);
 
-    // Update is called once per frame
-    void Update()
-    {
-        this.transform.Rotate(0, rotationSpeed * Time.deltaTime, 0);
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            altMode = !altMode;
+            foreach (var mesh in meshes)
+            {
+                foreach (var mat in mesh.materials)
+                {
+                    mat.SetFloat("_Rainbow", altMode ? 1f : 0f);
+                }
+            }
+        }
     }
 }
