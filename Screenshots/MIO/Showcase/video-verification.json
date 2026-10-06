@@ -1,0 +1,34 @@
+{
+  "file": "Videos\\MIO\\MIO-Turnaround-1080p.mp4",
+  "codec": "H.264",
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "seconds": 36,
+  "decoded_frames": 1080,
+  "container_seconds": 36.01,
+  "decode_errors": 0,
+  "bytes": 35941819,
+  "fast_start": true,
+  "mp4_top_level_atoms": [
+    "ftyp",
+    "moov",
+    "free",
+    "mdat"
+  ],
+  "timeline": {
+    "0-2": "color front",
+    "2-18": "360-degree color orbit",
+    "18-20": "color front",
+    "20-25": "graphite",
+    "25-32": "Dream Palette",
+    "32-36": "color and return to front"
+  },
+  "audio": {
+    "codec": "AAC",
+    "sample_rate": 48000,
+    "channels": 2,
+    "track": "Opening",
+    "source": "user-provided recording"
+  }
+}
