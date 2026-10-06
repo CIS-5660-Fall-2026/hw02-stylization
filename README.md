@@ -1,11 +1,45 @@
 # HW 2: *3D Stylization*
 
+## Final Results
+<p align="center">
+  <img width="500" src="ref-image.png">
+</p>
+<p align="center">2D Concept Illustration - Credit: Maria Jesus Contreras</p>
+
+<p align="center">
+  <img width="800" src="fish-gif.gif">
+</p>
+<p align="center">3D Stylized Scene in Unity</p>
+
+### Turntable Video
+<p align="center">
+  <img width="800" src="fish-turn.gif">
+</p>
+
+### Shaders
+The surface shader is a three-toned toon shader, which has multiple light support, specular highlights, and an added shadow texture on the darker parts of the toon shader. This toon shader is applied to everything in the scene, with the colors of the material altered to match components of the reference photo. In addition to the basic toon shader, there is a special surface shader that animates the vertices. This shader is used on the fish to give the appearance of the fish swimming in place. The jello in the scene uses the original toon shader, except with transparency instead of being opaque.
+
+### Outlines
+After solving the bug in the Full Screen Feature shader, I use it to apply outlines to the scene. I implement Sobel edge detection, and have three separate edge functions, according to normal, depth, and color. These outlines are able to be tuned with exposed parameters. I also added the ability to animate the outlines of the scene. I ended up liking the look of the outlines without the animation, but the parameters are still exposed in the material to potentially add the animations to the outlines.
+
+<p align="center">
+  <img width="600" src="fish-gif-wobble.gif">
+</p>
+
+### Full Screen Post Process Effect
+The reference photo had a little bit of grain overlayed on the whole image. To match that, I created another full screen post process effect to add this texture to the whole scene.
+
+### Interactivity
+To make the scene interactive, I have a second full screen post process material that gets swapped in when the spacebar is hit. This second shader alters the color Sobel implementation so that the outline values flip, and there is an inverted glitch-like effect. Hitting the spacebar again brings the scene back to the normal state.
+
+<p align="center">
+  <img width="600" src="fish-gif-static.gif">
+</p>
+
 ## Project Overview:
 In this assignment, you will use a 2D concept art piece as inspiration to create a 3D Stylized scene in Unity. This will give you the opportunity to explore stylized graphics techniques alongside non-photo-realistic (NPR) real-time rendering workflows in Unity.
 
-| <img width="500px" src=https://github.com/CIS-566-Fall-2023/hw04-stylization/assets/72320867/755780f1-8b8c-47e1-b14f-3a619f92fd3a/>  | <img width="500px" src=https://github.com/CIS-566-Fall-2023/hw04-stylization/assets/72320867/70550c09-ba75-4d10-9b30-60874179ad10/> |
-|:--:|:--:|
-| *2D Concept Illustration* | *3D Stylized Scene in Unity* |
+
 ### HW Task List:
 1. Picking a Piece of Concept Art
 2. Interesting Shaders
