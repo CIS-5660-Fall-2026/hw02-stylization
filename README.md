@@ -1,5 +1,7 @@
 # HW 4: *3D Stylization*
-<video src="stylization demo video.mp4"></video>
+<img src="stylization demo.gif">
+
+The video version of the demo can be viewed [here](https://youtu.be/LcXs120v0DQ).
 
 ## Implementation Details
 ### Improved Shader
