@@ -22,7 +22,7 @@ void GetMainLight_float(float3 WorldPos, out float3 Color, out float3 Direction,
 }
 
 void ComputeAdditionalLighting_float(float3 WorldPosition, float3 WorldNormal,
-    float2 Thresholds, float3 RampedDiffuseValues,
+    float2 Thresholds, float3 RampedDiffuseValues, float3 WorldView, float Shininess,
     out float3 Color, out float Diffuse)
 {
     Color = float3(0, 0, 0);
@@ -66,7 +66,14 @@ void ComputeAdditionalLighting_float(float3 WorldPosition, float3 WorldNormal,
             rampedDiffuse = 0.0;
         }
 
-        Color += max(rampedDiffuse, 0) * light.color.rgb;
+
+        // Specular highlight
+        float3 halfDir = normalize(light.direction + WorldView);
+        float NdotH = saturate(dot(WorldNormal, halfDir));
+        float specularFactor = pow(NdotH, max(Shininess, 0.001));
+        float3 specular = specularFactor * distanceAtten * shadowAtten * NdotL * light.color.rgb;
+
+        Color += max(rampedDiffuse, 0) * light.color.rgb + specular;
         Diffuse += rampedDiffuse;
     }
     
@@ -86,6 +93,22 @@ void ChooseColor_float(float3 Highlight, float3 Midtone, float3 Shadow, float Di
         OUT = Shadow;
     }
     else if (Diffuse < Thresholds.y)
+    {
+        OUT = Midtone;
+    }
+    else
+    {
+        OUT = Highlight;
+    }
+}
+
+void Choose3Color_float(float3 Highlight, float3 Midtone, float3 Shadow, float Diffuse, float LowThreshold, float HighThreshold, out float3 OUT)
+{
+    if (Diffuse < LowThreshold)
+    {
+        OUT = Shadow;
+    }
+    else if (Diffuse < HighThreshold)
     {
         OUT = Midtone;
     }

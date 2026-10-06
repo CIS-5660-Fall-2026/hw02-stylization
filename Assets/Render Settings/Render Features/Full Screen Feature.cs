@@ -12,19 +12,21 @@ public class FullScreenFeature : ScriptableRendererFeature
         public Material material;
     }
 
-    [SerializeField] private FullScreenPassSettings settings;
+    [SerializeField] private FullScreenPassSettings settings = new FullScreenPassSettings();
     class FullScreenPass : ScriptableRenderPass
     {
         const string ProfilerTag = "Full Screen Pass";
         public FullScreenFeature.FullScreenPassSettings settings;
         RenderTargetIdentifier colorBuffer, temporaryBuffer;
-        private int temporaryBufferID = Shader.PropertyToID("_TemporaryBuffer");
+        private readonly int temporaryBufferID;
 
-        public FullScreenPass(FullScreenFeature.FullScreenPassSettings passSettings)
+        public FullScreenPass(FullScreenFeature.FullScreenPassSettings passSettings, int featureInstanceId)
         {
-            this.settings = passSettings;
-            this.renderPassEvent = settings.renderPassEvent;
-            if (settings.material == null) settings.material = CoreUtils.CreateEngineMaterial("Shader Graphs/Invert");
+            this.settings = passSettings ?? new FullScreenPassSettings();
+            this.renderPassEvent = this.settings.renderPassEvent;
+            temporaryBufferID = Shader.PropertyToID($"_FullScreenTemporaryBuffer_{featureInstanceId}");
+            ConfigureInput(ScriptableRenderPassInput.Depth);
+            if (this.settings.material == null) this.settings.material = CoreUtils.CreateEngineMaterial("Shader Graphs/Invert");
         }
 
         // This method is called before executing the render pass.
@@ -35,6 +37,7 @@ public class FullScreenFeature : ScriptableRendererFeature
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
             RenderTextureDescriptor descriptor = renderingData.cameraData.cameraTargetDescriptor;
+            descriptor.depthBufferBits = 0;
             colorBuffer = renderingData.cameraData.renderer.cameraColorTarget;
 
             cmd.GetTemporaryRT(temporaryBufferID, descriptor, FilterMode.Point);
@@ -52,6 +55,7 @@ public class FullScreenFeature : ScriptableRendererFeature
             {
                 // HW 4 Hint: Blit from the color buffer to a temporary buffer and *back*.
                 Blit(cmd, colorBuffer, temporaryBuffer, settings.material);
+                Blit(cmd, temporaryBuffer, colorBuffer);
             }
 
             // Execute the command buffer and release it.
@@ -69,10 +73,26 @@ public class FullScreenFeature : ScriptableRendererFeature
 
     FullScreenPass m_FullScreenPass;
 
+    public Material CurrentMaterial => settings != null ? settings.material : null;
+
+    public void SetMaterial(Material material)
+    {
+        if (material == null)
+            return;
+
+        if (settings == null)
+            settings = new FullScreenPassSettings();
+
+        settings.material = material;
+
+        if (m_FullScreenPass != null)
+            m_FullScreenPass.settings = settings;
+    }
+
     /// <inheritdoc/>
     public override void Create()
     {
-        m_FullScreenPass = new FullScreenPass(settings);
+        m_FullScreenPass = new FullScreenPass(settings, GetInstanceID());
     }
 
     // Here you can inject one or multiple render passes in the renderer.
@@ -84,5 +104,3 @@ public class FullScreenFeature : ScriptableRendererFeature
         renderer.EnqueuePass(m_FullScreenPass);
     }
 }
-
-
