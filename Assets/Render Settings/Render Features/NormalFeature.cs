@@ -14,11 +14,16 @@ public class NormalFeature : ScriptableRendererFeature
     NormalsPass m_NormalsPass;
     public Material normalsMaterial;
 
+    //so we only apply the transformation to my character and not the rest of the scene
+    public LayerMask animatedLayerMask;
+    public Material animatedNormalsMaterial;
+    public Material animationSourceMaterial;
+
 
     /// <inheritdoc/>
     public override void Create()
     {
-        m_NormalsPass = new NormalsPass(NormalsTexture, normalsLayerMask, normalsMaterial);
+        m_NormalsPass = new NormalsPass(NormalsTexture, normalsLayerMask, normalsMaterial, animatedLayerMask, animatedNormalsMaterial, animationSourceMaterial);
         m_NormalsPass.renderPassEvent = _NormalsEvent;
     }
 
@@ -38,16 +43,38 @@ class NormalsPass : ScriptableRenderPass
     private List<ShaderTagId> m_ShaderTagIdList = new List<ShaderTagId>();
     private RenderTexture target;
     private Material normalsMaterial;
+    private FilteringSettings animatedFiltering;
+    private Material animatedMaterial;
+    private Material animationSource;
+    private bool drawAnimated;
 
-    public NormalsPass(RenderTexture targetTexture, LayerMask layerMask, Material mat)
+    public NormalsPass(RenderTexture targetTexture, LayerMask layerMask, Material mat, LayerMask animatedLayers, Material animatedMat, Material sourceMat)
     {
         m_ProfilingSampler = new ProfilingSampler("RenderNormals");
-        m_FilteringSettings = new FilteringSettings(RenderQueueRange.opaque, layerMask);
-
+        
         target = targetTexture;
 
         m_ShaderTagIdList.Add(new ShaderTagId("DepthOnly")); // Only render DepthOnly pass
         normalsMaterial = mat;
+
+        animatedMaterial = animatedMat;
+        animationSource = sourceMat;
+
+        drawAnimated = false;
+
+        if (animatedMat != null && sourceMat != null){
+            drawAnimated = true;
+        }
+
+        int animatedMask = 0;
+
+        if(drawAnimated){
+            animatedMask = layerMask.value & animatedLayers.value;
+        }
+
+        m_FilteringSettings = new FilteringSettings(RenderQueueRange.opaque, layerMask.value & ~animatedMask);
+
+        animatedFiltering = new FilteringSettings(RenderQueueRange.opaque, animatedMask);
     }
 
     public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
@@ -68,6 +95,18 @@ class NormalsPass : ScriptableRenderPass
         using (new ProfilingScope(cmd, m_ProfilingSampler))
         {
             context.DrawRenderers(renderingData.cullResults, ref drawingSettings, ref m_FilteringSettings);
+            
+            if (drawAnimated){
+                animatedMaterial.SetFloat("_Animation_Speed", animationSource.GetFloat("_Animation_Speed"));
+
+                animatedMaterial.SetFloat("_Squish_Amount", animationSource.GetFloat("_Squish_Amount"));
+
+                animatedMaterial.SetFloat("_Bob_Height", animationSource.GetFloat("_Bob_Height"));
+
+                drawingSettings.overrideMaterial = animatedMaterial;
+
+                context.DrawRenderers(renderingData.cullResults, ref drawingSettings, ref animatedFiltering);
+            }
         }
 
         context.ExecuteCommandBuffer(cmd);

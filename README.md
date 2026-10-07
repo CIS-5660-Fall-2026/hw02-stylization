@@ -1,3 +1,27 @@
+# HW 2: Cult of the Lamb Stylization
+
+![Scene turnaround](demo.gif)
+
+[Video](demo.mp4)
+
+For this project, I made scene inspired by *Cult of the Lamb*. 
+
+## What I added
+
+- **Toon shading:** Three shading bands with support for a directional light and additional lights, plus a rim highlight.
+- **Textured shadows:** I drew a scratchy line texture and used object UVs to place it in the shadows. Shadow Scale controls how often it repeats.
+- **Vertex animation:** The character and plants squish and stretch using a simpl sine wave.
+- **Outlines:** A full screen effect compares separate depth and normal buffers using edge detection. The outlines have adjustable width, thresholds, and animated wobble.
+- **Post-processing:** A colored vignette darkens the edges of the screen (kindof hard to tell but its there!).
+- **Interactivity:** You can press Space to switch between the regular look and a high contrast black and white mode with red outlines.
+
+One thing I had to work through was getting the normal buffer to match the vertex animation. I added an animated normal material for the moving objects so their outlines follow the same deformation.
+
+---
+
+<details>
+<summary>Original assignment instructions</summary>
+
 # HW 2: *3D Stylization*
 
 ## Project Overview:
@@ -218,3 +242,6 @@ Explore! What else can you do to polish your scene?
         - [Tutorial on Depth and Normal Buffer Robert's Cross Outliens in Unity](https://youtu.be/LMqio9NsqmM?si=zmtWxtdb1ViG2tFs)
     - [Alexander Ameye](https://ameye.dev/about/)
         - [Article on Edge Detection Post Process Outlines in Unity](https://ameye.dev/notes/edge-detection-outlines/)
+
+</details>
+
