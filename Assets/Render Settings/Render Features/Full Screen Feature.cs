@@ -52,10 +52,13 @@ public class FullScreenFeature : ScriptableRendererFeature
             {
                 // HW 4 Hint: Blit from the color buffer to a temporary buffer and *back*.
                 Blit(cmd, colorBuffer, temporaryBuffer, settings.material);
+                Blit(cmd, temporaryBuffer, colorBuffer);
             }
 
             // Execute the command buffer and release it.
             context.ExecuteCommandBuffer(cmd);
+            
+
             CommandBufferPool.Release(cmd);
         }
 

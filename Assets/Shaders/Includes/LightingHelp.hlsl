@@ -1,17 +1,16 @@
-void GetMainLight_float(float3 WorldPos, out float3 Color, out float3 Direction, out float DistanceAtten, out float ShadowAtten)
-{
+void GetMainLight_float(float3 WorldPos, out float3 Color, out float3 Direction, out float DistanceAtten, out float ShadowAtten) {
 #ifdef SHADERGRAPH_PREVIEW
     Direction = normalize(float3(0.5, 0.5, 0));
     Color = 1;
     DistanceAtten = 1;
     ShadowAtten = 1;
 #else
-#if SHADOWS_SCREEN
+    #if SHADOWS_SCREEN
         float4 clipPos = TransformWorldToClip(WorldPos);
         float4 shadowCoord = ComputeScreenPos(clipPos);
-#else
-    float4 shadowCoord = TransformWorldToShadowCoord(WorldPos);
-#endif
+    #else
+        float4 shadowCoord = TransformWorldToShadowCoord(WorldPos);
+    #endif
 
     Light mainLight = GetMainLight(shadowCoord);
     Direction = mainLight.direction;
@@ -28,7 +27,7 @@ void ComputeAdditionalLighting_float(float3 WorldPosition, float3 WorldNormal,
     Color = float3(0, 0, 0);
     Diffuse = 0;
 
-#ifndef SHADERGRAPH_PREVIEW
+    #ifndef SHADERGRAPH_PREVIEW
 
     int pixelLightCount = GetAdditionalLightsCount();
     
@@ -59,7 +58,13 @@ void ComputeAdditionalLighting_float(float3 WorldPosition, float3 WorldNormal,
         {
             rampedDiffuse = RampedDiffuseValues.z;
         }
+        
+        
+        if (shadowAtten * NdotL == 0)
+        {
+            rampedDiffuse = 0;
 
+        }
         
         if (light.distanceAttenuation <= 0)
         {
@@ -69,25 +74,14 @@ void ComputeAdditionalLighting_float(float3 WorldPosition, float3 WorldNormal,
         Color += max(rampedDiffuse, 0) * light.color.rgb;
         Diffuse += rampedDiffuse;
     }
-    
-    if (Diffuse <= 0.3)
-    {
-        Color = float3(0, 0, 0);
-        Diffuse = 0;
-    }
-    
-#endif
+    #endif
 }
 
-void ChooseColor_float(float3 Highlight, float3 Midtone, float3 Shadow, float Diffuse, float2 Thresholds, out float3 OUT)
+void ChooseColor_float(float3 Highlight, float3 Shadow, float Diffuse, float Threshold, out float3 OUT)
 {
-    if (Diffuse < Thresholds.x)
+    if (Diffuse < Threshold)
     {
         OUT = Shadow;
-    }
-    else if (Diffuse < Thresholds.y)
-    {
-        OUT = Midtone;
     }
     else
     {
