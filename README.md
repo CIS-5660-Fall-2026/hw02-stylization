@@ -1,5 +1,38 @@
 # HW 2: *3D Stylization*
 
+Controls  
+LEFT/RIGHT CLICK: Orbit  
+SPACE: Toggle Display Material  
+P: Party Mode  
+V: Toggle Vignette  
+
+Implemented Features
+
+multiple light support  
+rim light  
+shadow with procedural texture (togglable per material)  
+
+Procedural Runic Textures  
+
+Edge detection outlines  
+Extra Credit:  
+- only objects in the "outline" render layer have outlines
+- outlines have per object color using Per Object Outline Color script component
+- outline colors are animated
+
+Vignette
+
+![](result.png)
+
+Reference (Genshin Impact Official Artwork)
+
+![](hypostasis.png)
+
+Note: Did not use the normal render texture technique discussed in readme. Unity 6 breaks the render feature provided and gives an alternative way to access normals instead.
+
+
+
+
 ## Project Overview:
 In this assignment, you will use a 2D concept art piece as inspiration to create a 3D Stylized scene in Unity. This will give you the opportunity to explore stylized graphics techniques alongside non-photo-realistic (NPR) real-time rendering workflows in Unity.
 

@@ -26,8 +26,13 @@ public class NormalFeature : ScriptableRendererFeature
     // This method is called when setting up the renderer once per-camera.
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
-        if (renderingData.cameraData.cameraType == CameraType.Game)
+        if (renderingData.cameraData.cameraType == CameraType.Game && NormalsTexture != null && normalsMaterial != null)
             renderer.EnqueuePass(m_NormalsPass);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        m_NormalsPass?.Dispose();
     }
 }
 
@@ -36,7 +41,7 @@ class NormalsPass : ScriptableRenderPass
     private ProfilingSampler m_ProfilingSampler;
     private FilteringSettings m_FilteringSettings;
     private List<ShaderTagId> m_ShaderTagIdList = new List<ShaderTagId>();
-    private RenderTexture target;
+    private RTHandle target;
     private Material normalsMaterial;
 
     public NormalsPass(RenderTexture targetTexture, LayerMask layerMask, Material mat)
@@ -44,16 +49,22 @@ class NormalsPass : ScriptableRenderPass
         m_ProfilingSampler = new ProfilingSampler("RenderNormals");
         m_FilteringSettings = new FilteringSettings(RenderQueueRange.opaque, layerMask);
 
-        target = targetTexture;
+        if (targetTexture != null)
+            target = RTHandles.Alloc(targetTexture);
 
-        m_ShaderTagIdList.Add(new ShaderTagId("DepthOnly")); // Only render DepthOnly pass
+        m_ShaderTagIdList.Add(new ShaderTagId("UniversalForward"));
+        m_ShaderTagIdList.Add(new ShaderTagId("UniversalForwardOnly"));
+        m_ShaderTagIdList.Add(new ShaderTagId("SRPDefaultUnlit"));
         normalsMaterial = mat;
     }
 
     public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
     {
-        ConfigureTarget(target);
-        ConfigureClear(ClearFlag.All, Color.black);
+        if (target != null)
+        {
+            ConfigureTarget(target);
+            ConfigureClear(ClearFlag.All, Color.black);
+        }
     }
 
     public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
@@ -77,5 +88,10 @@ class NormalsPass : ScriptableRenderPass
     // Cleanup any allocated resources that were created during the execution of this render pass.
     public override void OnCameraCleanup(CommandBuffer cmd)
     {
+    }
+
+    public void Dispose()
+    {
+        target?.Release();
     }
 }
