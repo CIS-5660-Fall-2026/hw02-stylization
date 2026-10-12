@@ -1,7 +1,8 @@
-using System;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.Rendering.RenderGraphModule;
+using UnityEngine.Rendering.RenderGraphModule.Util;
 
 public class FullScreenFeature : ScriptableRendererFeature
 {
@@ -17,53 +18,29 @@ public class FullScreenFeature : ScriptableRendererFeature
     {
         const string ProfilerTag = "Full Screen Pass";
         public FullScreenFeature.FullScreenPassSettings settings;
-        RenderTargetIdentifier colorBuffer, temporaryBuffer;
-        private int temporaryBufferID = Shader.PropertyToID("_TemporaryBuffer");
 
         public FullScreenPass(FullScreenFeature.FullScreenPassSettings passSettings)
         {
             this.settings = passSettings;
             this.renderPassEvent = settings.renderPassEvent;
             if (settings.material == null) settings.material = CoreUtils.CreateEngineMaterial("Shader Graphs/Invert");
+            requiresIntermediateTexture = true;
         }
 
-        // This method is called before executing the render pass.
-        // It can be used to configure render targets and their clear state. Also to create temporary render target textures.
-        // When empty this render pass will render to the active camera render target.
-        // You should never call CommandBuffer.SetRenderTarget. Instead call <c>ConfigureTarget</c> and <c>ConfigureClear</c>.
-        // The render pipeline will ensure target setup and clearing happens in a performant manner.
-        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
+        // Unity 6 uses the Render Graph API: record passes here instead of Execute().
+        public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
         {
-            RenderTextureDescriptor descriptor = renderingData.cameraData.cameraTargetDescriptor;
-            colorBuffer = renderingData.cameraData.renderer.cameraColorTarget;
+            UniversalResourceData resourceData = frameData.Get<UniversalResourceData>();
+            if (resourceData.isActiveTargetBackBuffer) return;
 
-            cmd.GetTemporaryRT(temporaryBufferID, descriptor, FilterMode.Point);
-            temporaryBuffer = new RenderTargetIdentifier(temporaryBufferID);
-        }
+            TextureHandle colorBuffer = resourceData.activeColorTexture;
+            TextureDesc desc = renderGraph.GetTextureDesc(colorBuffer);
+            desc.name = "_TemporaryBuffer";
+            desc.clearBuffer = false;
+            TextureHandle temporaryBuffer = renderGraph.CreateTexture(desc);
 
-        // Here you can implement the rendering logic.
-        // Use <c>ScriptableRenderContext</c> to issue drawing commands or execute command buffers
-        // https://docs.unity3d.com/ScriptReference/Rendering.ScriptableRenderContext.html
-        // You don't have to call ScriptableRenderContext.submit, the render pipeline will call it at specific points in the pipeline.
-        public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
-        {
-            CommandBuffer cmd = CommandBufferPool.Get();
-            using (new ProfilingScope(cmd, new ProfilingSampler(ProfilerTag)))
-            {
-                // HW 4 Hint: Blit from the color buffer to a temporary buffer and *back*.
-                Blit(cmd, colorBuffer, temporaryBuffer, settings.material);
-            }
-
-            // Execute the command buffer and release it.
-            context.ExecuteCommandBuffer(cmd);
-            CommandBufferPool.Release(cmd);
-        }
-
-        // Cleanup any allocated resources that were created during the execution of this render pass.
-        public override void OnCameraCleanup(CommandBuffer cmd)
-        {
-            if (cmd == null) throw new ArgumentNullException("cmd");
-            cmd.ReleaseTemporaryRT(temporaryBufferID);
+            // HW 4 Hint: Blit from the color buffer to a temporary buffer and *back*.
+            renderGraph.AddBlitPass(new RenderGraphUtils.BlitMaterialParameters(colorBuffer, temporaryBuffer, settings.material, 0), ProfilerTag);
         }
     }
 

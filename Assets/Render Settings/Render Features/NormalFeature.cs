@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.Rendering.RenderGraphModule;
+using UnityEngine.Experimental.Rendering;
 
 public class NormalFeature : ScriptableRendererFeature
 {
@@ -29,6 +31,11 @@ public class NormalFeature : ScriptableRendererFeature
         if (renderingData.cameraData.cameraType == CameraType.Game)
             renderer.EnqueuePass(m_NormalsPass);
     }
+
+    protected override void Dispose(bool disposing)
+    {
+        m_NormalsPass?.Dispose();
+    }
 }
 
 class NormalsPass : ScriptableRenderPass
@@ -38,6 +45,7 @@ class NormalsPass : ScriptableRenderPass
     private List<ShaderTagId> m_ShaderTagIdList = new List<ShaderTagId>();
     private RenderTexture target;
     private Material normalsMaterial;
+    private RTHandle m_TargetHandle;
 
     public NormalsPass(RenderTexture targetTexture, LayerMask layerMask, Material mat)
     {
@@ -50,32 +58,55 @@ class NormalsPass : ScriptableRenderPass
         normalsMaterial = mat;
     }
 
-    public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
+    class PassData
     {
-        ConfigureTarget(target);
-        ConfigureClear(ClearFlag.All, Color.black);
+        public RendererListHandle rendererList;
     }
 
-    public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+    // Unity 6 uses the Render Graph API: record passes here instead of Execute().
+    public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
     {
-        if (renderingData.cameraData.cameraType != CameraType.Game)
+        UniversalCameraData cameraData = frameData.Get<UniversalCameraData>();
+        if (target == null || cameraData.cameraType != CameraType.Game)
             return;
-        SortingCriteria sortingCriteria = renderingData.cameraData.defaultOpaqueSortFlags;
-        DrawingSettings drawingSettings = CreateDrawingSettings(m_ShaderTagIdList, ref renderingData, sortingCriteria);
-        drawingSettings.overrideMaterial = normalsMaterial;
+        UniversalRenderingData renderingData = frameData.Get<UniversalRenderingData>();
+        UniversalLightData lightData = frameData.Get<UniversalLightData>();
 
-        CommandBuffer cmd = CommandBufferPool.Get();
-        using (new ProfilingScope(cmd, m_ProfilingSampler))
+        if (m_TargetHandle == null || m_TargetHandle.rt != target)
         {
-            context.DrawRenderers(renderingData.cullResults, ref drawingSettings, ref m_FilteringSettings);
+            m_TargetHandle?.Release();
+            m_TargetHandle = RTHandles.Alloc(target);
         }
+        TextureHandle color = renderGraph.ImportTexture(m_TargetHandle);
+        TextureHandle depth = renderGraph.CreateTexture(new TextureDesc(target.width, target.height)
+        {
+            name = "NormalsDepth",
+            format = GraphicsFormat.D32_SFloat,
+        });
 
-        context.ExecuteCommandBuffer(cmd);
-        CommandBufferPool.Release(cmd);
+        SortingCriteria sortingCriteria = cameraData.defaultOpaqueSortFlags;
+        DrawingSettings drawingSettings = RenderingUtils.CreateDrawingSettings(m_ShaderTagIdList, renderingData, cameraData, lightData, sortingCriteria);
+        drawingSettings.overrideMaterial = normalsMaterial;
+        RendererListParams listParams = new RendererListParams(renderingData.cullResults, drawingSettings, m_FilteringSettings);
+
+        using (var builder = renderGraph.AddRasterRenderPass<PassData>("RenderNormals", out var passData, m_ProfilingSampler))
+        {
+            passData.rendererList = renderGraph.CreateRendererList(listParams);
+            builder.UseRendererList(passData.rendererList);
+            builder.SetRenderAttachment(color, 0);
+            builder.SetRenderAttachmentDepth(depth);
+            builder.AllowPassCulling(false);
+            builder.SetRenderFunc((PassData data, RasterGraphContext ctx) =>
+            {
+                ctx.cmd.ClearRenderTarget(true, true, Color.black);
+                ctx.cmd.DrawRendererList(data.rendererList);
+            });
+        }
     }
 
-    // Cleanup any allocated resources that were created during the execution of this render pass.
-    public override void OnCameraCleanup(CommandBuffer cmd)
+    public void Dispose()
     {
+        m_TargetHandle?.Release();
+        m_TargetHandle = null;
     }
 }
